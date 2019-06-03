@@ -8,11 +8,10 @@ set(CMAKE_C_FLAGS_RELEASE "/MT")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-add_subdirectory(External/bgfx.cmake)
-add_subdirectory(External/glfw)
-
+add_subdirectory(External/bgfx.cmake EXCLUDE_FROM_ALL)
+add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
+add_subdirectory(External/portable-file-dialogs EXCLUDE_FROM_ALL)
 
 add_executable(ModelViewer  src/main.cpp)
 
-set_target_properties(ModelViewer PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BUILD_DIR}")
-target_link_libraries(ModelViewer bgfx bx bimg glfw)
+target_link_libraries(ModelViewer bgfx bx bimg glfw portable_file_dialogs)
