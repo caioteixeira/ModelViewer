@@ -12,6 +12,6 @@ add_subdirectory(External/bgfx.cmake EXCLUDE_FROM_ALL)
 add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
 add_subdirectory(External/portable-file-dialogs EXCLUDE_FROM_ALL)
 
-add_executable(ModelViewer  src/main.cpp)
+add_executable(ModelViewer  src/main.cpp src/graphics.h src/graphics.cpp)
 
 target_link_libraries(ModelViewer bgfx bx bimg glfw portable_file_dialogs)
