@@ -1,7 +1,14 @@
 #include <stdio.h>
-#include <portable-file-dialogs.h>
+#include <chrono>
+
 #include <GLFW/glfw3.h>
+#include <bgfx/bgfx.h>
+#include <bx/math.h>
+
+#include <portable-file-dialogs.h>
 #include "graphics.h"
+#include "modelLoader.h"
+
 
 static bool s_showStats = false;
 
@@ -47,10 +54,25 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    std::vector<Mesh> meshes;
+    modelLoader::loadModel(fileName, meshes);
+
+    std::vector<Element> elements;
+    for (auto& mesh : meshes)
+    {
+        Element element;
+        element.mesh = mesh;
+        bx::mtxIdentity(element.transform);
+        bx::mtxScale(element.transform, 1.0);
+
+        elements.push_back(element);
+    }
+
     unsigned int counter = 0;
 
     auto lastFrame = std::chrono::high_resolution_clock::now();
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window)) 
+    {
         glfwPollEvents();
 
         // Enable stats or debug text.
@@ -61,10 +83,12 @@ int main(int argc, char **argv)
             1000.0f;
         lastFrame = now;
 
+        graphics::renderElements(elements);
         graphics::renderFrame();
 
         counter++;
     }
+
     graphics::shutdown();
     glfwTerminate();
 }

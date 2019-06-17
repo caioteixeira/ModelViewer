@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include <bx/pixelformat.h>
+#include <bx/math.h>
 #include <bx/bx.h>
 #include <bx/string.h>
 #include <bgfx/platform.h>
@@ -12,15 +14,6 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #endif
 #include <GLFW/glfw3native.h>
-#include <bx/pixelformat.h>
-
-struct PosNormalVertex
-{
-    float x;
-    float y;
-    float z;
-    uint32_t normal;
-};
 
 inline uint32_t encodeNormalRgba8(float _x, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f)
 {
@@ -91,7 +84,7 @@ static void windowResizeCallback(GLFWwindow* window, int width, int height)
     graphics::windowWidth = width;
 }
 
-int graphics::init(GLFWwindow* window)
+bool graphics::init(GLFWwindow* window)
 {
     glfwSetWindowSizeCallback(window, windowResizeCallback);
 
@@ -114,7 +107,7 @@ int graphics::init(GLFWwindow* window)
     init.resolution.reset = BGFX_RESET_VSYNC;
     if (!bgfx::init(init))
     {
-        return 1;
+        return false;
     }
 
     // Set view 0 to the same dimensions as the window and to clear the color buffer.
@@ -124,6 +117,8 @@ int graphics::init(GLFWwindow* window)
     kColorUniform = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
     kInvertedModelUniform = bgfx::createUniform("u_invertedModel", bgfx::UniformType::Mat4);
     kViewPosUniform = bgfx::createUniform("u_viewPos", bgfx::UniformType::Vec4);
+
+    return true;
 }
 
 void graphics::renderFrame()
@@ -170,13 +165,13 @@ bgfx::ShaderHandle graphics::loadShader(const char *FILENAME)
 
 void graphics::renderElements(std::vector<Element>& elements)
 {
-    const bx::Vec3 at = { 0.0f, 0.0f,  0.0f };
-    const bx::Vec3 eye = { 20.0f, 20.0f, 20.0f };
+    static bx::Vec3 at = { 0.0f, 0.0f,  0.0f };
+    static bx::Vec3 eye = { 200.0f, 50.0f, 20.0f };
     float view[16];
     bx::mtxLookAt(view, eye, at, bx::Vec3(0.f, 1.f, 0.f), bx::Handness::Right);
     float proj[16];
 
-    bx::mtxProj(proj, 60.0f, float(graphics::windowWidth) / float(graphics::windowHeight), 0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
+    bx::mtxProj(proj, 60.0f, float(graphics::windowWidth) / float(graphics::windowHeight), 0.1f, 2000.0f, bgfx::getCaps()->homogeneousDepth, bx::Handness::Right);
     bgfx::setViewTransform(0, view, proj);
 
     bgfx::setUniform(kViewPosUniform, &eye, 1);
@@ -220,8 +215,8 @@ Mesh graphics::createCubeMesh()
     mesh.vertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(cubeVertices, sizeof(cubeVertices)), pcvDecl);
     mesh.indexBuffer = bgfx::createIndexBuffer(bgfx::makeRef(cubeTriList, sizeof(cubeTriList)));
 
-    bgfx::ShaderHandle vsh = graphics::loadShader("vs_cubes");
-    bgfx::ShaderHandle fsh = graphics::loadShader("fs_cubes");
+    bgfx::ShaderHandle vsh = graphics::loadShader("vs_phong");
+    bgfx::ShaderHandle fsh = graphics::loadShader("fs_phong");
     mesh.program = bgfx::createProgram(vsh, fsh, true);
 
     return mesh;

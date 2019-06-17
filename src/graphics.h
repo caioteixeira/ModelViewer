@@ -2,7 +2,6 @@
 #include <bgfx/bgfx.h>
 #include <vector>
 
-
 struct GLFWwindow;
 
 struct Mesh
@@ -28,6 +27,14 @@ struct Element
     Mesh mesh;
 };
 
+struct PosNormalVertex
+{
+    float x;
+    float y;
+    float z;
+    uint32_t normal;
+};
+
 namespace graphics
 {
     static const bgfx::ViewId kClearView = 0;
@@ -37,7 +44,7 @@ namespace graphics
     static bgfx::UniformHandle kInvertedModelUniform;
     static bgfx::UniformHandle kViewPosUniform;
 
-    int init(GLFWwindow* window);
+    bool init(GLFWwindow* window);
     void renderFrame();
     void shutdown();
 
